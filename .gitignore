@@ -12,7 +12,10 @@ npm-debug.log
 yarn-error.log
 
 # Android build files
-/android/app/build
+android/.gradle/
+android/build/
+android/app/build/
+android/app/.cxx/
 
 # IDEs and editors
 .idea/
