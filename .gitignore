@@ -11,6 +11,9 @@
 npm-debug.log
 yarn-error.log
 
+# Android build files
+/android/app/build
+
 # IDEs and editors
 .idea/
 .project
@@ -41,3 +44,5 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+
