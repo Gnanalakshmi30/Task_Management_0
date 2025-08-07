@@ -8,23 +8,116 @@ import {
     Image,
     SafeAreaView,
     ScrollView,
-    KeyboardAvoidingView, Platform
+    KeyboardAvoidingView, Platform,
+    Alert
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { useNavigation } from '@react-navigation/native';
+import InputField from '../../components/InputField';
+import SocialLoginButton from '../../components/SocialIcon';
+import { googleAuth, saveUserToFirebase } from '../../services/AuthService';
+import { useFormValidator } from '../../customHooks/useFormValidator';
+import registerSchema from '../../schemas/RegisterSchema';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
 
 const RegisterScreen = () => {
     const navigation = useNavigation<RegisterScreenNavigationProp>();
-    const [loginMethod, setLoginMethod] = useState<'phone' | 'email'>('phone');
+    const [loginMethod, setLoginMethod] = useState<'general' | 'google'>('general');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    type formFields = {
+        email: string;
+        mobile: string;
+        password: string;
+        confirmPassword: string;
+        name: string;
+        loginMethod: string;
 
-    const handleLogin = () => {
+    };
+    const { errors, validate, clearError } = useFormValidator<formFields>(registerSchema);
+    const [formValues, setFormValues] = useState({
+        name: '',
+        email: '',
+        mobile: '',
+        password: '',
+        confirmPassword: ''
+    });
+
+    const handleRegistration = async (loginMethod: string, email?: string, name?: string,) => {
+        try {
+            if (loginMethod !== 'google') {
+                console.log("notgoogle", formValues);
+
+                const isValid = await validate({
+                    email: formValues.email,
+                    mobile: formValues.mobile,
+                    password: formValues.password,
+                    confirmPassword: formValues.confirmPassword,
+                    name: formValues.name,
+                    loginMethod: loginMethod,
+                });
+
+                if (!isValid) return;
+            }
+
+            console.log("notgoodffle", formValues);
+
+            const payload = {
+                loginMethod,
+                email: loginMethod === 'google' ? email : formValues.email,
+                mobile: formValues.mobile,
+                password: formValues.password,
+                name: loginMethod === 'google' ? name : formValues.name,
+            };
+            console.log("notgoodffle", payload);
+            const response = await saveUserToFirebase(payload);
+
+            if (!response) {
+                Alert.alert("Error", "Try again after sometime");
+
+            } else {
+                Alert.alert("Success", "Registration successful, kindly login");
+            }
+
+            setFormValues({
+                email: '',
+                mobile: '',
+                password: '',
+                name: '',
+                confirmPassword: ''
+            });
+
+            navigation.replace('Login')
+
+
+        } catch (error) {
+
+        }
+    };
+
+
+
+    async function onGoogleButtonPress() {
+        try {
+            const user = await googleAuth();
+
+            if (user) {
+                await handleRegistration('google', user.email ?? "", user.displayName ?? "");
+                Alert.alert("Success", "Logged in with Google");
+            } else {
+                Alert.alert("Error", "User not found");
+            }
+        } catch (error: any) {
+            Alert.alert("Login Failed", error.message || "Something went wrong");
+        }
+    }
+
+    const handleChange = (field: string, value: string) => {
+        setFormValues(prev => ({ ...prev, [field]: value }));
     };
 
     return (
@@ -44,68 +137,65 @@ const RegisterScreen = () => {
                         <Text style={styles.loginText}>Login</Text>
                     </Text>
 
-                    <View style={styles.tabContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.tabButton,
-                                loginMethod === 'phone' && styles.activeTab,
-                            ]}
-                            onPress={() => setLoginMethod('phone')}
-                        >
-                            <Text style={loginMethod === 'phone' ? styles.activeTabText : styles.tabText}>Phone Number</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.tabButton,
-                                loginMethod === 'email' && styles.activeTab,
-                            ]}
-                            onPress={() => setLoginMethod('email')}
-                        >
-                            <Text style={loginMethod === 'email' ? styles.activeTabText : styles.tabText}>Email</Text>
-                        </TouchableOpacity>
-                    </View>
 
-                    {loginMethod === 'phone' ? (
-                        <TextInput
-                            style={styles.input}
-                            placeholder="+91-000-000-0000"
-                            keyboardType="phone-pad"
-                            value={phone}
-                            onChangeText={setPhone}
-                        />
-                    ) : (
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter your email"
-                            keyboardType="email-address"
-                            value={email}
-                            onChangeText={setEmail}
-                        />
-                    )}
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
+                    <InputField
+                        placeholder="Enter your phone number"
+                        keyboardType="phone-pad"
+                        maxLength={10}
+                        value={formValues.mobile}
+                        onChangeText={(text) => handleChange('mobile', text)}
+                        onFocus={() => clearError('mobile')}
+                        error={errors.mobile}
                     />
 
-                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                    <InputField
+                        placeholder="Enter your email"
+                        keyboardType="email-address"
+                        value={formValues.email}
+                        onChangeText={(text) => handleChange('email', text)}
+                        onFocus={() => clearError('email')}
+                        error={errors.email}
+                    />
+
+                    <InputField
+                        placeholder="Enter your name"
+                        value={formValues.name}
+                        onChangeText={(text) => handleChange('name', text)}
+                        onFocus={() => clearError('name')}
+                        error={errors.name}
+                    />
+
+                    <InputField
+                        value={formValues.password}
+                        placeholder="Enter password"
+                        secureTextEntry
+                        onChangeText={text => handleChange('password', text)}
+                        onFocus={() => clearError('password')}
+                        error={errors.password}
+                    />
+
+                    <InputField
+                        value={formValues.confirmPassword}
+                        placeholder="Enter confirm password"
+                        secureTextEntry
+                        onChangeText={text => handleChange('confirmPassword', text)}
+                        onFocus={() => clearError('confirmPassword')}
+                        error={errors.confirmPassword}
+                    />
+
+                    <TouchableOpacity style={styles.loginButton} onPress={() => handleRegistration(loginMethod)}>
                         <Text style={styles.loginButtonText}>Sign up</Text>
                     </TouchableOpacity>
 
                     <Text style={styles.orText}>or register with</Text>
 
-                    <View style={styles.socialContainer}>
-                        <TouchableOpacity style={styles.socialButton}>
-                            <Image
-                                source={require('../../../assets/images/google_image.png')}
-                                style={styles.socialIcon}
-                            />
-                        </TouchableOpacity>
-
-                    </View>
+                    <SocialLoginButton
+                        onPress={onGoogleButtonPress}
+                        iconSource={require('../../../assets/images/google_image.png')}
+                        style={styles.socialButton}
+                        iconStyle={styles.socialIcon}
+                    />
 
 
                 </ScrollView>

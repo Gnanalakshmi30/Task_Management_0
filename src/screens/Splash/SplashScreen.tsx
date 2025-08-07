@@ -5,6 +5,7 @@ import { styles } from './style';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 
@@ -12,17 +13,26 @@ type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 const SplashScreen = () => {
     const navigation = useNavigation<SplashScreenNavigationProp>();
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    useEffect(() => {
-        timeoutRef.current = setTimeout(() => {
-            navigation.replace('Login');
-        }, 5000);
 
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            try {
+                const storedUser = await AsyncStorage.getItem('user');
+                if (storedUser) {
+                    navigation.replace('TaskDashboard');
+                } else {
+                    navigation.replace('Login');
+                }
+            } catch (error) {
+                console.error('Error reading user data', error);
+                navigation.replace('Login');
             }
         };
+
+        setTimeout(checkUser, 1000);
     }, []);
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />

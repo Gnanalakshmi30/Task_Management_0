@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import colors from "../../constants/colors";
+import colors from "../../constants/Colors";
 import { Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
@@ -64,6 +64,29 @@ export const styles = StyleSheet.create({
         paddingVertical: height * 0.02,
         marginBottom: height * 0.01,
     },
+
+    passwordInput: {
+        width: width * 0.8,
+        paddingVertical: height * 0.02,
+        paddingHorizontal: width * 0.02,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: height * 0.01,
+    },
+
+    passwordInputWrapper: {
+        position: 'relative',
+        width: '100%',
+        marginBottom: height * 0.02,
+    },
+    eyeIcon: {
+        position: 'absolute',
+        right: width * 0.02,
+        top: width * 0.07,
+        transform: [{ translateY: -12 }],
+        color: colors.gray,
+
+    },
     loginButton: {
         width: width * 0.8,
         backgroundColor: colors.primary,
@@ -102,5 +125,13 @@ export const styles = StyleSheet.create({
     createAccount: {
         color: colors.secondary,
         fontWeight: '600',
+    },
+    errorText: {
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+        width: '100%',
+        color: colors.red,
+        marginBottom: height * 0.01,
+        fontSize: width * 0.04,
     },
 });

@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>176650700167-j198uc9ajhp2rfrpimq8ro0j1e3l5iop.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.176650700167-j198uc9ajhp2rfrpimq8ro0j1e3l5iop</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>176650700167-h6c20i70sl04e1h4htrhldona4kopb9o.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCdbAClIXFSUKaR8Q1u5xurU6gnB4DVfEM</string>
 	<key>GCM_SENDER_ID</key>
@@ -34,9 +28,5 @@
 	<string>1:176650700167:ios:1333b2845277c3da783f22</string>
 	<key>DATABASE_URL</key>
 	<string>https://task-manager-39940-default-rtdb.firebaseio.com</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires access to the microphone.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This app uses speech recognition.</string>
 </dict>
 </plist>

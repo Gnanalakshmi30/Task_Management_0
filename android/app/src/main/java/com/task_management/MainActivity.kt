@@ -1,4 +1,4 @@
-package com.task_management
+package com.task.management
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

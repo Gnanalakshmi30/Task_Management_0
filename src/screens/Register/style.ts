@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import colors from "../../constants/colors";
+import colors from "../../constants/Colors";
 import { Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
@@ -14,8 +14,8 @@ export const styles = StyleSheet.create({
     },
 
     illustration: {
-        width: width * 0.6,
-        height: width * 0.6,
+        width: width * 0.3,
+        height: width * 0.3,
         marginBottom: height * 0.03,
     },
     title: {
@@ -25,6 +25,7 @@ export const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: width * 0.04,
+        marginBottom: height * 0.02,
         marginVertical: height * 0.01,
         color: '#555',
     },

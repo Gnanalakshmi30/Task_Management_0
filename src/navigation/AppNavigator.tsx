@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/Splash/SplashScreen';
 import LoginScreen from '../screens/Login/LoginScreen';
 import RegisterScreen from '../screens/Register/RegisterScreen';
-import TaskDashboard from '../screens/Dashboard/TaskDashboard';
+import TaskDashboard from '../screens/Dashboard/Styles/TaskDashboard';
 
 export type RootStackParamList = {
     Splash: undefined;

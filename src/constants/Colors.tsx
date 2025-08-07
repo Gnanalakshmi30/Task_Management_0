@@ -6,7 +6,9 @@ const colors = {
     black: '#000000',
     gray: '#A9A9A9',
     title: '#000',
-    paragraph: '#666'
+    paragraph: '#666',
+    red: 'red',
+    borderColor: '#ccc'
 
 };
 
