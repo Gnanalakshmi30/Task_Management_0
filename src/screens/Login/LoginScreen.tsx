@@ -21,7 +21,8 @@ import CustomButton from '../../components/Button';
 import SocialLoginButton from '../../components/SocialIcon';
 import { googleAuth, loginUserFromFirebase, saveUserToFirebase } from '../../services/AuthService';
 import loginSchema from '../../schemas/LoginSchema';
-import { saveUserToLocalStorage } from '../../utils/localStorage';
+import { saveUserToLocalStorage, storeFCMToken } from '../../utils/localStorage';
+
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -83,6 +84,7 @@ const LoginScreen = () => {
 
             const { userId, user, error } = await loginUserFromFirebase(payload);
             if (user != null) {
+                await storeFCMToken();
                 const localUser = {
                     userId: userId ?? '',
                     email: user.email || '',

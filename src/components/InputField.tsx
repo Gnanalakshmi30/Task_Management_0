@@ -34,6 +34,7 @@ const InputField: React.FC<InputFieldProps> = ({
             <View style={styles.inputWrapper}>
                 <TextInput
                     value={value}
+                    placeholderTextColor="#888"
                     placeholder={placeholder}
                     keyboardType={keyboardType}
                     secureTextEntry={isPasswordField && !showPassword}

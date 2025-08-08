@@ -6,7 +6,6 @@ import {
     ScrollView,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    Switch,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './Styles/style';
@@ -23,7 +22,8 @@ import colors from '../../constants/Colors';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { TaskContext } from '../../constants/TaskContext';
-import { deleteTask, getTasks, listenAndSyncOfflineTasks } from '../../services/AuthService';  // <-- import new getTasks here
+import { deleteTask, getTasks, listenAndSyncOfflineTasks } from '../../services/AuthService';
+import PushNotification from 'react-native-push-notification';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDashboard'>;
 
@@ -97,6 +97,23 @@ export default function TaskDashboard() {
                     setTasks(fetchedTasks);
                     setMarkedDates(marks);
                     setLoading(false);
+
+                    if (fetchedTasks.length > 0) {
+                        console.log("fetched", fetchedTasks.length);
+                        setTimeout(() => {
+                            console.log("timeout");
+
+                            PushNotification.localNotification({
+                                channelId: "task-alerts",
+                                title: "Task alert",
+                                message: `You have ${fetchedTasks.length} task${fetchedTasks.length > 1 ? 's' : ''}.`,
+                                playSound: true,
+                                soundName: 'default',
+                                importance: 'high',
+                                vibrate: true,
+                            });
+                        }, 1000);
+                    }
                 },
                 (error) => {
                     console.error('Error fetching tasks:', error);
@@ -118,7 +135,6 @@ export default function TaskDashboard() {
         };
     }, []);
 
-
     const getName = async () => {
         const user = await AsyncStorage.getItem('user');
         if (user) {
@@ -128,6 +144,7 @@ export default function TaskDashboard() {
     };
 
     const openCreateModal = () => {
+
         clearForm();
         setOperationMethod('create');
         setModalVisible(true);
@@ -180,14 +197,6 @@ export default function TaskDashboard() {
                                 </TouchableWithoutFeedback>
 
                                 <View style={styles.popupMenu}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 }}>
-                                        <Text style={styles.menuText}>Dark Mode</Text>
-                                        {/* <Switch
-                                            value={theme === 'dark'}
-                                            onValueChange={toggleTheme}
-                                        /> */}
-                                    </View>
-
                                     <TouchableOpacity
                                         style={styles.menuItem}
                                         onPress={() => {

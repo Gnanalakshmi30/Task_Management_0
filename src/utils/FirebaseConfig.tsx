@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
+import { Platform } from 'react-native';
+import PushNotification from 'react-native-push-notification';
 
 
 const firebaseConfig = {
@@ -18,6 +20,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 export const firestore = getFirestore(app);
+
+
+export const pushNotificationChannelRegistration = (): void => {
+    if (Platform.OS === 'android') {
+        PushNotification.createChannel(
+            {
+                channelId: 'task-alerts',
+                channelName: 'Task Alerts',
+                channelDescription: 'Notifications about your tasks',
+                importance: 4,
+                vibrate: true,
+            },
+            (created) => console.log(`createChannel returned '${created}'`)
+        );
+    }
+
+    PushNotification.configure({
+        onRegister: function (token) {
+            console.log("TOKEN:", token);
+        },
+        onNotification: function (notification) {
+            console.log('NOTIFICATION:', notification);
+        },
+        popInitialNotification: true,
+        requestPermissions: true,
+    });
+};
 
 
 

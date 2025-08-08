@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { styles } from './style';
 import { useNavigation } from '@react-navigation/native';
@@ -12,26 +12,32 @@ type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 
 const SplashScreen = () => {
     const navigation = useNavigation<SplashScreenNavigationProp>();
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        const checkUser = async () => {
+        const checkUserAndNavigate = async () => {
             try {
                 const storedUser = await AsyncStorage.getItem('user');
-                if (storedUser) {
-                    navigation.replace('TaskDashboard');
-                } else {
-                    navigation.replace('Login');
-                }
+                const loggedIn = !!storedUser;
+                setIsLoggedIn(loggedIn);
+
+                setTimeout(() => {
+                    if (loggedIn) {
+                        navigation.replace('TaskDashboard');
+                    } else {
+                        navigation.replace('Login');
+                    }
+                }, 1000);
             } catch (error) {
                 console.error('Error reading user data', error);
+                setIsLoggedIn(false);
                 navigation.replace('Login');
             }
         };
 
-        setTimeout(checkUser, 1000);
-    }, []);
+        checkUserAndNavigate();
+    }, [navigation]);
+
 
     return (
         <View style={styles.container}>
@@ -48,16 +54,20 @@ const SplashScreen = () => {
             <Text style={styles.description}>
                 Welcome Home! Access trusted services for a comfortable, hassle-free living.
             </Text>
+            {!isLoggedIn && (
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.replace('Login')}>
+                        <Text style={styles.primaryText}>Login</Text>
+                    </TouchableOpacity>
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.replace('Login')}>
-                    <Text style={styles.primaryText}>Login</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.replace('Register')}>
-                    <Text style={styles.secondaryText}>Register</Text>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity
+                        style={styles.secondaryButton}
+                        onPress={() => navigation.replace('Register')}
+                    >
+                        <Text style={styles.secondaryText}>Register</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 };

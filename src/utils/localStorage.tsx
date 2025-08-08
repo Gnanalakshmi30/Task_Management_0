@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
+
 
 export const saveUserToLocalStorage = async (user: {
     userId: string;
@@ -44,5 +46,26 @@ export const logoutUser = async (navigation: any) => {
         );
     } catch (error) {
         console.error('Error during logout', error);
+    }
+}
+
+export const storeFCMToken = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (!enabled) {
+        console.log('User declined messaging permissions');
+    } else {
+        try {
+            const fcmToken = await messaging().getToken();
+            if (fcmToken) {
+                await AsyncStorage.setItem('fcmToken', fcmToken);
+                console.log('FCM token stored:', fcmToken);
+            }
+        } catch (storageError) {
+            console.error('Failed to store FCM token:', storageError);
+        }
     }
 }
