@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, Modal, Text, TextInput, TouchableOpacity, Button, Platform } from 'react-native';
+import React from 'react';
+import { View, Modal, Text, TouchableOpacity, Platform, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import styles from './modalStyle';
+import styles from './Styles/modalStyle';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
-import firestore, { addDoc, collection, serverTimestamp } from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
-import { Alert } from 'react-native';
-import { getTaskSchema } from '../../schemas/TaskSchema';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { database } from "../../utils/FirebaseConfig";
-import { isConnected } from '../../utils/NetworkService';
-import { saveTaskOffline } from '../../utils/localStorage';
+import { taskSchema } from '../../schemas/TaskSchema';
+import InputField from '../../components/InputField';
+import { useFormValidator } from '../../customHooks/useFormValidator';
+import CustomButton from '../../components/Button';
+import { createTask, updateTask } from '../../services/AuthService';  // Make sure updateTask is implemented
 
 
 interface TaskModalProps {
@@ -19,13 +16,19 @@ interface TaskModalProps {
     taskName: string;
     setTaskName: (name: string) => void;
     taskDesc: string;
+    setTaskId: (name: string) => void;
+    taskId: string;
     setTaskDesc: (desc: string) => void;
+    taskStatus: string;
+    setTaskStatus: (desc: string) => void;
     taskDate: Date | null;
     setTaskDate: (date: Date | null) => void;
     showDatePicker: boolean;
     setShowDatePicker: (show: boolean) => void;
     handleSubmit: () => void;
     clearForm: () => void;
+    operationMethod: 'create' | 'update';
+    selectedTask: any | null;
 }
 
 const formatDate = (date: Date | null): string => {
@@ -41,76 +44,120 @@ const TaskModal: React.FC<TaskModalProps> = ({
     setModalVisible,
     taskName,
     setTaskName,
+    taskId,
+    setTaskId,
     taskDesc,
     setTaskDesc,
+    taskStatus,
+    setTaskStatus,
     taskDate,
     setTaskDate,
     showDatePicker,
     setShowDatePicker,
     handleSubmit,
     clearForm,
+    operationMethod,
+    selectedTask,
 }) => {
 
-    const submitTaskToFirestore = async () => {
-
-        try {
-            const online = await isConnected();
-            const payload = {
-                title: 'Sample Task',
-                description: 'This is a test task',
-                userId: "6789",
-                createdAt: firestore.FieldValue.serverTimestamp(),
-            }
-            if (online) {
-
-                await firestore().collection('tasks').add(payload);
-                Alert.alert('Success', 'Task created successfully');
-                clearForm();
-                setModalVisible(false);
-            } else {
-                await saveTaskOffline(payload);
-            }
-
-        } catch (error: any) {
-            if (error.name === 'ValidationError') {
-                const messages = error.inner.map((e: any) => e.message).join('\n');
-                Alert.alert('Validation Error', messages);
-            } else {
-                console.error('Firestore error:', error);
-                Alert.alert('Error', 'Something went wrong while saving task');
-            }
-        }
+    type formFields = {
+        id?: string;
+        name: string;
+        description: string;
+        status: string;
+        dueDate: string;
+        operationMethod: string;
     };
 
+    const { errors, validate, clearError } = useFormValidator<formFields>(taskSchema);
+
+    const submitTaskToFirestore = async () => {
+        try {
+            const formValues: formFields = {
+                name: taskName,
+                description: taskDesc,
+                status: taskStatus,
+                dueDate: taskDate?.toString() ?? "",
+                operationMethod,
+                ...(operationMethod === 'update' && selectedTask?.id ? { id: selectedTask.id } : {}),
+            };
+
+            const isValid = await validate(formValues);
+            if (!isValid) {
+                return;
+            }
+
+            const payload = {
+                name: taskName,
+                description: taskDesc,
+                status: taskStatus,
+                dueDate: taskDate,
+            };
+
+            let response;
+
+            if (operationMethod === 'create') {
+                response = await createTask(payload);
+            } else if (operationMethod === 'update' && selectedTask?.id) {
+                console.log("update");
+
+                response = await updateTask(selectedTask.id, payload);
+            }
+
+            if (!response?.message) {
+                Alert.alert("Error", response?.message ?? "Try again later");
+                return;
+            }
+
+            clearForm();
+            setModalVisible(false);
+
+        } catch (error: any) {
+            console.error(error);
+        }
+    };
 
     return (
         <Modal visible={modalVisible} animationType="slide" transparent>
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Create Task</Text>
-                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <Text style={styles.modalTitle}>
+                            {operationMethod === 'create' ? 'Create Task' : 'Edit Task'}
+                        </Text>
+                        <TouchableOpacity onPress={() => {
+                            clearForm();
+                            return setModalVisible(false);
+                        }}>
                             <FontAwesome name="close" size={24} color="grey" />
                         </TouchableOpacity>
                     </View>
-
-                    <TextInput
+                    <InputField
                         placeholder="Task Name"
                         value={taskName}
                         onChangeText={setTaskName}
-                        style={[styles.input, { height: 80 }]}
+                        error={errors.name}
+                        onFocus={() => clearError('name')}
                     />
 
-                    <TextInput
+                    <InputField
                         placeholder="Task Description"
                         value={taskDesc}
                         onChangeText={setTaskDesc}
-                        multiline
-                        style={[styles.input, { height: 80 }]}
+                        error={errors.description}
+                    />
+                    <InputField
+                        placeholder="Task Status"
+                        value={taskStatus}
+                        onChangeText={setTaskStatus}
+                        error={errors.status}
+                        onFocus={() => clearError('status')}
                     />
 
                     <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
-                        <Text style={{ color: taskDate ? 'black' : '#aaa' }}> {taskDate ? formatDate(taskDate) : 'Select Date'}</Text>
+                        <Text style={{ color: taskDate ? 'black' : '#aaa' }}>
+                            {taskDate ? formatDate(taskDate) : 'Select due date'}
+                        </Text>
                     </TouchableOpacity>
                     {showDatePicker && (
                         <DateTimePicker
@@ -126,19 +173,11 @@ const TaskModal: React.FC<TaskModalProps> = ({
                         />
                     )}
 
-                    <View style={styles.buttonRow}>
-                        <View style={styles.buttonWrapper}>
-                            <Button title="Submit" onPress={submitTaskToFirestore} />
-                        </View>
-                        <View style={styles.buttonWrapper}>
-                            <Button title="Clear" onPress={clearForm} color="gray" />
-                        </View>
-                    </View>
+                    <CustomButton title="Submit" onPress={submitTaskToFirestore} />
                 </View>
             </View>
         </Modal>
     );
 };
-
 
 export default TaskModal;

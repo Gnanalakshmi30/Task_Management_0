@@ -61,7 +61,6 @@ const LoginScreen = () => {
 
         try {
             if (loginMethod !== 'google') {
-                console.log("vali", formValues.email, formValues.mobile, formValues.password, loginMethod);
 
                 const isValid = await validate({
                     email: formValues.email,
@@ -69,7 +68,6 @@ const LoginScreen = () => {
                     password: formValues.password,
                     loginMethod: loginMethod,
                 });
-                console.log("vali", isValid);
                 if (!isValid) return;
             }
 

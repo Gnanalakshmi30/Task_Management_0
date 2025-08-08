@@ -4,26 +4,36 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/Splash/SplashScreen';
 import LoginScreen from '../screens/Login/LoginScreen';
 import RegisterScreen from '../screens/Register/RegisterScreen';
-import TaskDashboard from '../screens/Dashboard/Styles/TaskDashboard';
+import TaskDashboard from '../screens/Dashboard/TaskDashboard';
+import TaskDetail from '../screens/Dashboard/TaskDetail';
+import { TaskProvider } from '../constants/TaskContext';
 
 export type RootStackParamList = {
     Splash: undefined;
     Login: undefined;
     Register: undefined;
     TaskDashboard: undefined;
+    TaskDetail: undefined;
+
 };
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const Navigator = () => {
     return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="Splash" component={SplashScreen} />
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="TaskDashboard" component={TaskDashboard} />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <TaskProvider>
+            <NavigationContainer>
+                <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="Splash" component={SplashScreen} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="TaskDashboard" component={TaskDashboard} />
+                    <Stack.Screen name="TaskDetail" component={TaskDetail} />
+                </Stack.Navigator>
+            </NavigationContainer>
+
+        </TaskProvider>
+
     );
 };
 

@@ -1,4 +1,7 @@
 import { StyleSheet } from "react-native";
+import colors from "../../../constants/Colors";
+import { Dimensions } from 'react-native';
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     modalContainer: {
@@ -31,12 +34,13 @@ const styles = StyleSheet.create({
     },
 
     dateInput: {
+        width: width * 0.8,
         borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        marginBottom: 15,
-        backgroundColor: '#fff',
+        borderColor: colors.gray,
+        borderRadius: height * 0.01,
+        paddingHorizontal: width * 0.02,
+        paddingVertical: height * 0.02,
+        marginBottom: height * 0.01,
     },
 
     buttonRow: {

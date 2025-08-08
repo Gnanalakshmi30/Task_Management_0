@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
 
 export const saveUserToLocalStorage = async (user: {
     userId: string;
@@ -29,3 +30,19 @@ export const getOfflineTasks = async (): Promise<any[]> => {
 export const clearOfflineTasks = async () => {
     await AsyncStorage.removeItem('offlineTasks');
 };
+
+
+export const logoutUser = async (navigation: any) => {
+    try {
+        await AsyncStorage.removeItem('user');
+        await AsyncStorage.removeItem('offlineTasks');
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+            })
+        );
+    } catch (error) {
+        console.error('Error during logout', error);
+    }
+}

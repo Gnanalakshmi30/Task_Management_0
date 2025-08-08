@@ -62,6 +62,41 @@ const styles = StyleSheet.create({
     taskTitle: { fontSize: 16, fontWeight: 'bold', color: '#fff' },
     taskDesc: { fontSize: 14, color: '#f9f9f9', marginVertical: 4 },
     taskTime: { fontSize: 12, color: '#eee', marginTop: 8 },
+    popupMenu: {
+        position: 'absolute',
+        top: 40,
+        right: 0,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+        paddingVertical: 5,
+        minWidth: 150,
+        zIndex: 1001,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+    },
+    menuText: {
+        fontSize: 16,
+        color: '#333',
+    },
+    backdrop: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'transparent',
+        zIndex: 1000,
+    },
 });
 
 
