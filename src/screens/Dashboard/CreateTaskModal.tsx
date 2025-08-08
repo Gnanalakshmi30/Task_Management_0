@@ -7,7 +7,7 @@ import { taskSchema } from '../../schemas/TaskSchema';
 import InputField from '../../components/InputField';
 import { useFormValidator } from '../../customHooks/useFormValidator';
 import CustomButton from '../../components/Button';
-import { createTask, updateTask } from '../../services/AuthService';  // Make sure updateTask is implemented
+import { createTask, updateTask } from '../../services/AuthService';
 
 
 interface TaskModalProps {
@@ -99,8 +99,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
             if (operationMethod === 'create') {
                 response = await createTask(payload);
             } else if (operationMethod === 'update' && selectedTask?.id) {
-                console.log("update");
-
                 response = await updateTask(selectedTask.id, payload);
             }
 
@@ -113,7 +111,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
             setModalVisible(false);
 
         } catch (error: any) {
-            console.error(error);
         }
     };
 

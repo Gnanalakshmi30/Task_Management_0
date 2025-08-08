@@ -11,16 +11,20 @@ export const saveUserToLocalStorage = async (user: {
 }) => {
     try {
         await AsyncStorage.setItem('user', JSON.stringify(user));
-        console.log('User data saved to local storage');
     } catch (error) {
-        console.error('Error saving user to local storage', error);
     }
 };
-
 export const saveTaskOffline = async (task: any) => {
     const existing = await AsyncStorage.getItem('offlineTasks');
     const tasks = existing ? JSON.parse(existing) : [];
-    tasks.push(task);
+
+    const index = tasks.findIndex((t: any) => t.localId === task.localId);
+    if (index > -1) {
+        tasks[index] = task;
+    } else {
+        tasks.push(task);
+    }
+
     await AsyncStorage.setItem('offlineTasks', JSON.stringify(tasks));
 };
 
@@ -45,7 +49,6 @@ export const logoutUser = async (navigation: any) => {
             })
         );
     } catch (error) {
-        console.error('Error during logout', error);
     }
 }
 
@@ -55,17 +58,13 @@ export const storeFCMToken = async () => {
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (!enabled) {
-        console.log('User declined messaging permissions');
-    } else {
+    if (enabled) {
         try {
             const fcmToken = await messaging().getToken();
             if (fcmToken) {
                 await AsyncStorage.setItem('fcmToken', fcmToken);
-                console.log('FCM token stored:', fcmToken);
             }
         } catch (storageError) {
-            console.error('Failed to store FCM token:', storageError);
         }
     }
 }

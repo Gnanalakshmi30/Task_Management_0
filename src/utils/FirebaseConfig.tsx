@@ -32,16 +32,14 @@ export const pushNotificationChannelRegistration = (): void => {
                 importance: 4,
                 vibrate: true,
             },
-            (created) => console.log(`createChannel returned '${created}'`)
+            (created) => { }
         );
     }
 
     PushNotification.configure({
         onRegister: function (token) {
-            console.log("TOKEN:", token);
         },
         onNotification: function (notification) {
-            console.log('NOTIFICATION:', notification);
         },
         popInitialNotification: true,
         requestPermissions: true,

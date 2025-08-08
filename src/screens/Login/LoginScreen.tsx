@@ -58,8 +58,6 @@ const LoginScreen = () => {
     };
 
     const handleLogin = async (loginMethod: string, email?: string) => {
-        console.log("login");
-
         try {
             if (loginMethod !== 'google') {
 
@@ -78,10 +76,6 @@ const LoginScreen = () => {
                 mobile: formValues.mobile,
                 password: formValues.password,
             };
-
-            console.log("payload", payload);
-
-
             const { userId, user, error } = await loginUserFromFirebase(payload);
             if (user != null) {
                 await storeFCMToken();
@@ -106,7 +100,6 @@ const LoginScreen = () => {
 
 
         } catch (error) {
-            console.log("error", error);
         }
     };
 

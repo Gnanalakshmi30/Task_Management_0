@@ -6,11 +6,8 @@ import { saveTaskOffline, getOfflineTasks, clearOfflineTasks } from "../utils/lo
 import { isConnected } from "../utils/NetworkService";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
-
 import firestores from '@react-native-firebase/firestore';
-
-
-
+import colors from '../constants/Colors';
 
 interface UserPayload {
     email?: string;
@@ -101,7 +98,6 @@ export const googleAuth = async (): Promise<FirebaseAuthTypes.User | null> => {
 
         return firebaseUserCredential.user;
     } catch (error) {
-        console.error("Google login failed", error);
         throw error;
     }
 };
@@ -132,8 +128,6 @@ export const createTask = async (
 
 export const updateTask = async (taskId: string, data: any) => {
     try {
-        console.log("taskId", taskId, data);
-
         const docRef = doc(firestore, "tasks", taskId);
         await updateDoc(docRef, data);
         return { status: 'success', message: 'Task updated successfully' };
@@ -145,7 +139,7 @@ export const updateTask = async (taskId: string, data: any) => {
 export const getTasks = async (
     onTasksUpdate: (tasks: any[], markedDates: { [key: string]: any }) => void,
     onError?: (error: any) => void
-): Promise<() => void> => {  // Return a function (unsubscribe or noop)
+): Promise<() => void> => {
     try {
         const online = await isConnected();
         if (online) {
@@ -170,8 +164,8 @@ export const getTasks = async (
                         if (dueDate) {
                             marks[dueDate] = {
                                 marked: true,
-                                dotColor: '#B486F1',
-                                selectedColor: '#B486F1',
+                                dotColor: colors.secondary,
+                                selectedColor: colors.primary,
                             };
                         }
                     });
@@ -198,15 +192,13 @@ export const getTasks = async (
                 if (dueDate) {
                     marks[dueDate] = {
                         marked: true,
-                        dotColor: '#B486F1',
-                        selectedColor: '#B486F1',
+                        dotColor: colors.secondary,
+                        selectedColor: colors.primary,
                     };
                 }
             });
 
             onTasksUpdate(offline, marks);
-
-            // No listener in offline mode, return noop function
             return () => { };
         }
     } catch (error) {
@@ -230,27 +222,21 @@ export const listenAndSyncOfflineTasks = () => {
 
                     if (snapshot.empty) {
                         await firestores().collection('tasks').add(task);
-                    } else {
-                        console.log(`Task ${task.taskId} already exists. Skipping...`);
                     }
                 }
                 await clearOfflineTasks();
             }
         }
     });
-
-    // Return unsubscribe function so caller can clean up listener
     return unsubscribe;
 };
 
 
 export const deleteTask = async (taskId: string) => {
     try {
-        // Using react-native-firebase firestore instance you have as firestores
         await firestores().collection('tasks').doc(taskId).delete();
         return { status: 'success', message: 'Task deleted successfully' };
     } catch (error: any) {
-        console.error('Error deleting task:', error);
         return { status: 'error', message: error.message || 'Error deleting task' };
     }
 };

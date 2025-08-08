@@ -1,5 +1,5 @@
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { styles } from './style';
 import { useNavigation } from '@react-navigation/native';
@@ -27,9 +27,8 @@ const SplashScreen = () => {
                     } else {
                         navigation.replace('Login');
                     }
-                }, 1000);
+                }, 5000);
             } catch (error) {
-                console.error('Error reading user data', error);
                 setIsLoggedIn(false);
                 navigation.replace('Login');
             }

@@ -11,8 +11,6 @@ export const useFormValidator = <T extends object>(schema: Yup.ObjectSchema<any>
 
     const validate = async (values: T): Promise<boolean> => {
         try {
-            console.log("values", values);
-
             await schema.validate(values, { abortEarly: false });
             setErrors({});
             return true;
@@ -24,7 +22,6 @@ export const useFormValidator = <T extends object>(schema: Yup.ObjectSchema<any>
                     if (err.path) newErrors[err.path] = err.message;
                 });
             }
-            console.log("values", newErrors);
             setErrors(newErrors);
             return false;
         }

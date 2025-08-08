@@ -99,10 +99,7 @@ export default function TaskDashboard() {
                     setLoading(false);
 
                     if (fetchedTasks.length > 0) {
-                        console.log("fetched", fetchedTasks.length);
                         setTimeout(() => {
-                            console.log("timeout");
-
                             PushNotification.localNotification({
                                 channelId: "task-alerts",
                                 title: "Task alert",
@@ -116,7 +113,6 @@ export default function TaskDashboard() {
                     }
                 },
                 (error) => {
-                    console.error('Error fetching tasks:', error);
                     setLoading(false);
                 }
             );
@@ -165,8 +161,6 @@ export default function TaskDashboard() {
         const result = await deleteTask(taskId);
         if (result.status === 'success') {
             setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
-        } else {
-            console.error('Failed to delete task:', result.message);
         }
     };
 

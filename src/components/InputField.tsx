@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity } from 'react-native';
 import styles from '../constants/Styles';
 import AntDesign from '@react-native-vector-icons/ant-design';
+import colors from '../constants/Colors';
 
 
 interface InputFieldProps {
@@ -34,7 +35,7 @@ const InputField: React.FC<InputFieldProps> = ({
             <View style={styles.inputWrapper}>
                 <TextInput
                     value={value}
-                    placeholderTextColor="#888"
+                    placeholderTextColor={colors.paragraph}
                     placeholder={placeholder}
                     keyboardType={keyboardType}
                     secureTextEntry={isPasswordField && !showPassword}
@@ -51,7 +52,7 @@ const InputField: React.FC<InputFieldProps> = ({
                         <AntDesign
                             name={showPassword ? 'eye' : 'eye-invisible'}
                             size={20}
-                            color="#888"
+                            color={colors.paragraph}
                         />
                     </TouchableOpacity>
                 )}

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { styles } from './style';
 import {
-    View,
     Text,
-    TextInput,
     TouchableOpacity,
     Image,
     SafeAreaView,
@@ -26,9 +24,6 @@ type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList
 const RegisterScreen = () => {
     const navigation = useNavigation<RegisterScreenNavigationProp>();
     const [loginMethod, setLoginMethod] = useState<'general' | 'google'>('general');
-    const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     type formFields = {
         email: string;
         mobile: string;
@@ -50,8 +45,6 @@ const RegisterScreen = () => {
     const handleRegistration = async (loginMethod: string, email?: string, name?: string,) => {
         try {
             if (loginMethod !== 'google') {
-                console.log("notgoogle", formValues);
-
                 const isValid = await validate({
                     email: formValues.email,
                     mobile: formValues.mobile,
@@ -63,9 +56,6 @@ const RegisterScreen = () => {
 
                 if (!isValid) return;
             }
-
-            console.log("notgoodffle", formValues);
-
             const payload = {
                 loginMethod,
                 email: loginMethod === 'google' ? email : formValues.email,
@@ -73,9 +63,7 @@ const RegisterScreen = () => {
                 password: formValues.password,
                 name: loginMethod === 'google' ? name : formValues.name,
             };
-            console.log("notgoodffle", payload);
             const response = await saveUserToFirebase(payload);
-
             if (!response) {
                 Alert.alert("Error", "Try again after sometime");
 
@@ -92,8 +80,6 @@ const RegisterScreen = () => {
             });
 
             navigation.replace('Login')
-
-
         } catch (error) {
 
         }
@@ -107,7 +93,7 @@ const RegisterScreen = () => {
 
             if (user) {
                 await handleRegistration('google', user.email ?? "", user.displayName ?? "");
-                Alert.alert("Success", "Logged in with Google");
+                Alert.alert("Success", "Registered with Google, Kindly login");
             } else {
                 Alert.alert("Error", "User not found");
             }
